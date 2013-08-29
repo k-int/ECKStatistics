@@ -181,7 +181,8 @@ class ModuleStatisticController {
 		return([moduleSet : findModuleSet(),
 			    duration : getParameterDuration(),
 				limit :  getParameterLimit(),
-				offset : getParameterOffset()]);
+				offset : getParameterOffset(),
+				days : getParameterDays()]);
 	}
 		
 	private String getStringParameter(parameter, defaultValue) {
@@ -204,6 +205,10 @@ class ModuleStatisticController {
 		return(getIntegerParameter("offset", 0));
 	}
 	
+	private Integer getParameterDays() {
+		return(getIntegerParameter("days", 30));
+	}
+
 	private String getParameterQueryType() {
 		return(getStringParameter("queryType", "status"));
 	}

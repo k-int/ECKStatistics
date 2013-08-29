@@ -7,17 +7,17 @@ class StatusService {
     def doReport(reportParameters) {
 		def results = [];
 		if (reportParameters.moduleSet != null) {
-			def numberProcessed = ModuleStatistic.executeQuery("select sum(numberProcessed) from ModuleStatistic where moduleSet = ?", [reportParameters.moduleSet]);
-			if (numberProcessed[0] != null) {
-				def totalDuration = ModuleStatistic.executeQuery("select sum(duration) from ModuleStatistic where moduleSet = ?", [reportParameters.moduleSet]);
-				def fastestTime = ModuleStatistic.executeQuery("select min(duration) as fastestTime from ModuleStatistic where moduleSet = ?", [reportParameters.moduleSet]);
-				def slowestTime = ModuleStatistic.executeQuery("select max(duration) as slowestTime from ModuleStatistic where moduleSet = ?", [reportParameters.moduleSet]);
-				Double averageTime = totalDuration[0] / numberProcessed[0];
+			def statistics = ModuleStatistic.executeQuery("select sum(numberProcessed), sum(numberSuccessful), sum(numberFailed), sum(duration), min(duration), max(duration) from ModuleStatistic where moduleSet = ? and statisticDate > subdate(curdate(), ?)", [reportParameters.moduleSet, reportParameters.days]);
+			def resultRow = statistics[0];
+			if (resultRow[0] != null) {
+				Double averageTime = resultRow[3] / resultRow[0];
 				
-				results = [numberProcessed : numberProcessed[0],
-					       duration : totalDuration[0],
-						   fastestTime : fastestTime[0],
-						   slowestTime : slowestTime[0],
+				results = [numberProcessed : resultRow[0],
+					       successful : resultRow[1],
+					       failed : resultRow[2],
+					       duration : resultRow[3],
+						   fastestTime : resultRow[4],
+						   slowestTime : resultRow[5],
 						   averageTime : averageTime.round(0)];
 			}
 		}

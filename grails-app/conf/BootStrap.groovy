@@ -15,10 +15,10 @@ class BootStrap {
 			}
 		}
 
-		// We do not want the id, class or moduleSet fields appearing in the json, we also do not want fields being output if the value is null		
+		// We do not want the id, class, moduleSet or moduleSetId fields appearing in the json, we also do not want fields being output if the value is null		
 		JSON.registerObjectMarshaller(com.k_int.euinside.statistics.datamodel.ModuleStatistic) {
 			return(it.properties.findAll{key, value ->
-										 ((key != "class") && (key != "id") && (key != "moduleSet") && (value != null))
+										 ((key != "class") && (key != "id") && (key != "moduleSet") && (key != "moduleSetId") && (value != null))
 										});
 		}
     }
