@@ -1,11 +1,6 @@
 class UrlMappings {
 	
 	static mappings = {
-		"/$moduleId/$set/query/status" {
-			controller = "ModuleStatistic"
-			action = "status"
-		}
-		
 		"/$moduleId/$set/$action/$queryType?" {
 			controller = "ModuleStatistic"
 		}
