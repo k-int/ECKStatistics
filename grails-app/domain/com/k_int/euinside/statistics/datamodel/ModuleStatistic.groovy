@@ -1,4 +1,4 @@
-package eckstatistics
+package com.k_int.euinside.statistics.datamodel
 
 class ModuleStatistic {
 

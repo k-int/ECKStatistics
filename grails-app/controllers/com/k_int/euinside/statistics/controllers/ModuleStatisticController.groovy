@@ -1,4 +1,7 @@
-package eckstatistics
+
+package com.k_int.euinside.statistics.controllers
+
+import grails.converters.JSON;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -7,9 +10,46 @@ import java.util.Date;
 import javax.persistence.Query
 import org.springframework.dao.DataIntegrityViolationException
 
+import com.k_int.euinside.statistics.datamodel.Module;
+import com.k_int.euinside.statistics.datamodel.ModuleSet;
+import com.k_int.euinside.statistics.datamodel.ModuleStatistic;
+
 class ModuleStatisticController {
 	// This is the date format that we expect to receive the date format
 	static SimpleDateFormat expectedDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+	
+	def status() {
+		def results = [];
+		
+		// Is there a minimum duration we are interested in
+		Long duration = params.long('duration');
+		if (duration == null) {
+			duration = 0;
+		}
+
+		// Is there a limit in the number of records they would like to request		
+		Integer limit = params.int('limit');
+		if (limit == null) {
+			limit = 100;
+		}
+
+		// Now down to the nitty gritty
+		String moduleId = params.moduleId;
+		if (moduleId != null) {
+			String set = params.set;
+	
+			// Ensure we have a legitimate module and set
+			Module module = findModule(moduleId, true);
+			if (module != null) {
+				ModuleSet moduleSet = findModuleSet(module, set, true);
+				if (moduleSet != null) {
+					// Now we can execute the query
+					results = ModuleStatistic.findAll("FROM ModuleStatistic WHERE module_set_id = ? and duration >= ? order by statistic_date desc", [moduleSet.id, duration], [max : limit]);
+				}
+			}
+		}
+		render results as JSON;
+	}
 	
     def query(Integer max, String typeOfQuery ) {
         //params.max = Math.min(max ?: 10, 100)
@@ -39,7 +79,7 @@ class ModuleStatisticController {
 // params.limit
 			
 			// if url parameters are missing use default values:
-			if(!params.list('duration')) params.duration = 1
+			if(!params.list('duration')) params.duration = 1 
 			if(!params.list('limit')) params.limit = 1
 //			render params.modx
 			//moduleId
@@ -89,8 +129,6 @@ class ModuleStatisticController {
 //			}
 			
 //			render json as JSON;
-			
-			
 		}
 		
 		
@@ -115,7 +153,7 @@ class ModuleStatisticController {
 //        [moduleStatisticInstanceList: ModuleStatistic.list(params), moduleStatisticInstanceTotal: ModuleStatistic.count()]
     }
 	
-	def update(){
+	def update() {
 		
 		Long duration = params.long('duration');
 		Integer itemsProcessed = params.int('itemsProcessed');
@@ -147,12 +185,6 @@ class ModuleStatisticController {
 		
 		String moduleId = params.moduleId;
 		String set = params.set;
-
-		// If we have not been supplied a set or the set is *, then set it to default		
-		if ((set == null) || (set == "*")) {
-			set = "DEFAULT";
-		}
-		
 		String error = null;
 
 		if (moduleId == null) {
@@ -169,7 +201,7 @@ class ModuleStatisticController {
 			error = "dateTime not specified or the date was in an incorrect format";
 		}
 		if (error == null) {
-			Module module = findModule(moduleId);
+			Module module = findModule(moduleId, true);
 			if (module == null) {
 				error = "Internal error: Creating new module record";
 			} else {
@@ -179,7 +211,7 @@ class ModuleStatisticController {
 				statistic.numberProcessed = itemsProcessed;
 				statistic.numberSuccessful = numberSuccessful;
 				statistic.statisticDate = dateTime;
-				statistic.moduleSet = findModuleSet(module, set);
+				statistic.moduleSet = findModuleSet(module, set, true);
 				if (statistic.moduleSet == null) {
 					error = "Internal error: Creating new module set record";
 				} else {
@@ -198,9 +230,9 @@ class ModuleStatisticController {
 		}
 	}
 	
-	private Module findModule(moduleId) {
+	private Module findModule(moduleId, boolean create) {
 		Module module = Module.findByCode(moduleId);
-		if (module == null) {
+		if ((module == null) && create) {
 			module = new Module();
 			module.code= moduleId;
 			module.description = moduleId;
@@ -211,9 +243,15 @@ class ModuleStatisticController {
 		return(module);
 	}
 	
-	private ModuleSet findModuleSet(module, set) {
+	private ModuleSet findModuleSet(module, set, boolean create) {
+		// If we have not been supplied a set or the set is *, then set it to default		
+		if ((set == null) || (set == "*")) {
+			set = "DEFAULT";
+		}
+
+		// Now try and find the set		
 		ModuleSet moduleSet = ModuleSet.findByModuleAndCode(module, set);
-		if (moduleSet == null) {
+		if ((moduleSet == null) && create) {
 			moduleSet = new ModuleSet();
 			moduleSet.code= set;
 			moduleSet.description = set;

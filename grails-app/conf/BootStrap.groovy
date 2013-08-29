@@ -1,3 +1,6 @@
+
+import grails.converters.JSON;
+
 class BootStrap {
 
 	def grailsApplication;
@@ -10,6 +13,13 @@ class BootStrap {
 				// We have one that wants initialising and has an initialise method
 				serviceBean.initialise() 
 			}
+		}
+
+		// We do not want the id, class or moduleSet fields appearing in the json, we also do not want fields being output if the value is null		
+		JSON.registerObjectMarshaller(com.k_int.euinside.statistics.datamodel.ModuleStatistic) {
+			return(it.properties.findAll{key, value ->
+										 ((key != "class") && (key != "id") && (key != "moduleSet") && (value != null))
+										});
 		}
     }
 	

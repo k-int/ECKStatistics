@@ -1,6 +1,6 @@
-package eckstatistics
+package com.k_int.euinside.statistics.datamodel
 
-class ModuleSet {
+class Module {
 	
 	String code
 	String description
@@ -10,7 +10,6 @@ class ModuleSet {
 		"${description}"
 	}
 	
-	static belongsTo = [module : Module]
 	static hasMany = [statistics : ModuleStatistic]
 		
 	static mapping = {
