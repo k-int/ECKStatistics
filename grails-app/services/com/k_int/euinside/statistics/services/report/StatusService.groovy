@@ -11,8 +11,8 @@ class StatusService {
 				                                                 "sum(numberSuccessful), " +
 																 "sum(numberFailed), " +
 																 "sum(duration), " +
-																 "min(duration), " + 
-																 "max(duration) " +
+																 "min(duration / numberProcessed), " + 
+																 "max(duration / numberProcessed) " +
 														  "from ModuleStatistic " +
 														  "where moduleSet = ? and " +
 																"statisticDate > subdate(curdate(), ?)",
@@ -20,13 +20,15 @@ class StatusService {
 			def resultRow = statistics[0];
 			if (resultRow[0] != null) {
 				Double averageTime = resultRow[3] / resultRow[0];
+				Double fastestTime = resultRow[4];
+				Double slowestTime = resultRow[5];
 				
 				results = [numberProcessed : resultRow[0],
-					       successful : resultRow[1],
-					       failed : resultRow[2],
+					       numberSuccessful : resultRow[1],
+					       numberFailed : resultRow[2],
 					       duration : resultRow[3],
-						   fastestTime : resultRow[4],
-						   slowestTime : resultRow[5],
+						   fastestTime : fastestTime.round(0),
+						   slowestTime : slowestTime.round(0),
 						   averageTime : averageTime.round(0)];
 			}
 		}
