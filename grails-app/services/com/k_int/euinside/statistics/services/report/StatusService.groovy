@@ -7,7 +7,16 @@ class StatusService {
     def doReport(reportParameters) {
 		def results = [];
 		if (reportParameters.moduleSet != null) {
-			def statistics = ModuleStatistic.executeQuery("select sum(numberProcessed), sum(numberSuccessful), sum(numberFailed), sum(duration), min(duration), max(duration) from ModuleStatistic where moduleSet = ? and statisticDate > subdate(curdate(), ?)", [reportParameters.moduleSet, reportParameters.days]);
+			def statistics = ModuleStatistic.executeQuery("select sum(numberProcessed), " +
+				                                                 "sum(numberSuccessful), " +
+																 "sum(numberFailed), " +
+																 "sum(duration), " +
+																 "min(duration), " + 
+																 "max(duration) " +
+														  "from ModuleStatistic " +
+														  "where moduleSet = ? and " +
+																"statisticDate > subdate(curdate(), ?)",
+														  [reportParameters.moduleSet, reportParameters.days]);
 			def resultRow = statistics[0];
 			if (resultRow[0] != null) {
 				Double averageTime = resultRow[3] / resultRow[0];
