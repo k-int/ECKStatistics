@@ -157,9 +157,7 @@ class ModuleStatisticController {
 	
 	private Long getLongParameter(parameter, defaultValue) {
 		Long value = params.long(parameter);
-		if (value == null) {
-			value = defaultValue;
-		}
+		checkParameter(value, defaultValue);
 
 		// We do not allow negative values
 		if (value < 0) {
@@ -170,14 +168,19 @@ class ModuleStatisticController {
 
 	private Integer getIntegerParameter(parameter, defaultValue) {
 		Integer value = params.int(parameter);
-		if (value == null) {
-			value = defaultValue;
-		}
+		checkParameter(value, defaultValue);
 		
 		// We do not allow negative values
 		if (value < 0) {
 			value = 0;
 		}
+		return(value);
+	}
+
+	private String getStringParameter(parameter, defaultValue) {
+		String value = params.get(parameter);
+		checkParameter(value, defaultValue);
+		
 		return(value);
 	}
 
@@ -189,8 +192,7 @@ class ModuleStatisticController {
 				days : getParameterDays()]);
 	}
 		
-	private String getStringParameter(parameter, defaultValue) {
-		String value = params.get(parameter);
+	private String checkParameter(value, defaultValue) {
 		if (value == null) {
 			value = defaultValue;
 		}

@@ -79,6 +79,7 @@
     	<script type="text/javascript">
 
     		function performAction(action) {
+        		
 	        	$("#testForm").attr("action", action);
 	        	$("#testForm").submit();
 	            return false;
