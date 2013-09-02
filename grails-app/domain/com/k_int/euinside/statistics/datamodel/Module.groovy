@@ -10,7 +10,7 @@ class Module {
 		"${description}"
 	}
 	
-	static hasMany = [statistics : ModuleStatistic]
+	static hasMany = [sets : ModuleSet]
 		
 	static mapping = {
 		version false 
