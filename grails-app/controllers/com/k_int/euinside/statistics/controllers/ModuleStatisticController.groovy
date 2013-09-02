@@ -20,7 +20,11 @@ class ModuleStatisticController {
 	// This is the date format that we expect to receive the date format
 	static SimpleDateFormat expectedDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
-    def query( ) {
+	def test() {
+		// Throws up a test page
+	}
+
+	def query( ) {
 		def results = ReportService.execute(getParameterQueryType(), buildReportParameters());
 
 		render results as JSON;
