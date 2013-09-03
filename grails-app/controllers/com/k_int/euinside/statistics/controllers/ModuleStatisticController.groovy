@@ -51,6 +51,7 @@ class ModuleStatisticController {
 
 		Date dateTime = null
 		try {
+			String chas = params.dateTime
 			dateTime = ModuleStatistic.expectedDateFormat.parse(params.dateTime);
 		} catch (ParseException e) {
 			// Do not care if we had an error, it will be dealt with below
@@ -59,25 +60,26 @@ class ModuleStatisticController {
 		
 		String moduleId = params.moduleId;
 		String set = params.set;
-		String error = null;
+		String responseText = null;
+		def responseCode = 400; // Default to being an error, since only 1 route is successful
 
 		if (moduleId == null) {
-			error = "No module specified";
+			responseText = "No module specified";
 		} else if (duration == null) {
-			error = "No duration specified";		
+			responseText = "No duration specified";		
 		} else if (itemsProcessed == null) {
-			error = "Number of items processed (itemsProcessed) not specified";		
+			responseText = "Number of items processed (itemsProcessed) not specified";		
 		} else if (numberSuccessful == null) {
-			error = "Number of items successfully processed (numberSuccessful) not specified";		
+			responseText = "Number of items successfully processed (numberSuccessful) not specified";		
 		} else if (numberFailed == null) {
-			error = "Number of items failed to process or in error (numberFailed) not specified";		
+			responseText = "Number of items failed to process or in error (numberFailed) not specified";		
 		} else if (dateTime == null) {
-			error = "dateTime not specified or the date was in an incorrect format";
+			responseText = "dateTime not specified or the date was in an incorrect format";
 		}
-		if (error == null) {
+		if (responseText == null) {
 			Module module = findModule(moduleId, true);
 			if (module == null) {
-				error = "Internal error: Creating new module record";
+				responseText = "Internal error: Creating new module record";
 			} else {
 				ModuleStatistic statistic = new ModuleStatistic();
 				statistic.duration = duration;
@@ -87,21 +89,20 @@ class ModuleStatisticController {
 				statistic.statisticDate = dateTime;
 				statistic.moduleSet = findModuleSet(module, set, true);
 				if (statistic.moduleSet == null) {
-					error = "Internal error: Creating new module set record";
+					responseText = "Internal error: Creating new module set record";
 				} else {
 					if (statistic.save(flush: true)) {
-						response.sendError(202, "Statistic has been stored");
+						responseCode = 202;
+						responseText = "Statistic has been stored";
 					} else {
-						error = "Internal error: Saving statistics record";
+						responseText = "Internal error: Saving statistics record";
 					}
 				}
 			}
 		}
-		
-		// If we had an error respond with a 400
-		if (error != null) {
-			response.sendError(400, error);
-		}
+
+		// Now give the response 		
+		render(status: responseCode, text: responseText, contentType: "text/plain", encoding: "UTF-8");
 	}
 	
 	private Module findModule(moduleId, boolean create) {
