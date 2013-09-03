@@ -15,12 +15,16 @@ class BootStrap {
 			}
 		}
 
-		// We do not want the id, class, moduleSet or moduleSetId fields appearing in the json, we also do not want fields being output if the value is null		
+		// We do not want the id, class, moduleSet or moduleSetId fields appearing in the json, we also do not want fields being output if the value is null
+		// since we also want the date in a specific format we map these directly		
 		JSON.registerObjectMarshaller(com.k_int.euinside.statistics.datamodel.ModuleStatistic) {
-			return(it.properties.findAll{key, value ->
-										 ((key != "class") && (key != "id") && (key != "moduleSet") && (key != "moduleSetId") && (value != null))
-										});
+			return(it.generateJSONFields());
 		}
+//		JSON.registerObjectMarshaller(com.k_int.euinside.statistics.datamodel.ModuleStatistic) {
+//			return(it.properties.findAll{key, value ->
+//										 ((key != "class") && (key != "id") && (key != "moduleSet") && (key != "moduleSetId") && (value != null))
+//										});
+//		}
     }
 	
     def destroy = {

@@ -1,7 +1,11 @@
 package com.k_int.euinside.statistics.datamodel
 
-class ModuleStatistic {
+import java.text.SimpleDateFormat;
+import java.util.Map;
 
+class ModuleStatistic {
+	static SimpleDateFormat expectedDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+	
 	Long duration = 0;
 	Integer numberFailed = 0;
 	Integer numberProcessed = 0;
@@ -25,4 +29,22 @@ class ModuleStatistic {
 		numberProcessed 	nullable : false
 		numberSuccessful	nullable : false
     }
+	
+	private addFieldIfNotNull(Map map, String key, value) {
+		if (value != null) {
+			map[key] = value;
+		}
+	}
+	
+	private Map generateJSONFields() {
+		def fieldsJSON = [ : ]
+		addFieldIfNotNull(fieldsJSON, "duration", duration);
+		addFieldIfNotNull(fieldsJSON, "numberFailed", numberFailed);
+		addFieldIfNotNull(fieldsJSON, "numberProcessed", numberProcessed);
+		addFieldIfNotNull(fieldsJSON, "numberSuccessful", numberSuccessful);
+		if (statisticDate != null) {
+			addFieldIfNotNull(fieldsJSON, "statisticDate", expectedDateFormat.format(statisticDate));
+		}
+		return(fieldsJSON)
+	}
 }

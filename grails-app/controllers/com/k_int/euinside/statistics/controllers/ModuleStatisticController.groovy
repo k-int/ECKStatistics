@@ -17,9 +17,6 @@ import com.k_int.euinside.statistics.datamodel.ModuleStatistic;
 class ModuleStatisticController {
 	def ReportService;
 	
-	// This is the date format that we expect to receive the date format
-	static SimpleDateFormat expectedDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-
 	def test() {
 		// Throws up a test page
 	}
@@ -54,7 +51,7 @@ class ModuleStatisticController {
 
 		Date dateTime = null
 		try {
-			dateTime = expectedDateFormat.parse(params.dateTime);
+			dateTime = ModuleStatistic.expectedDateFormat.parse(params.dateTime);
 		} catch (ParseException e) {
 			// Do not care if we had an error, it will be dealt with below
 		}
@@ -157,7 +154,7 @@ class ModuleStatisticController {
 	
 	private Long getLongParameter(parameter, defaultValue) {
 		Long value = params.long(parameter);
-		checkParameter(value, defaultValue);
+		value = checkParameter(value, defaultValue);
 
 		// We do not allow negative values
 		if (value < 0) {
@@ -168,7 +165,7 @@ class ModuleStatisticController {
 
 	private Integer getIntegerParameter(parameter, defaultValue) {
 		Integer value = params.int(parameter);
-		checkParameter(value, defaultValue);
+		value = checkParameter(value, defaultValue);
 		
 		// We do not allow negative values
 		if (value < 0) {
@@ -179,7 +176,7 @@ class ModuleStatisticController {
 
 	private String getStringParameter(parameter, defaultValue) {
 		String value = params.get(parameter);
-		checkParameter(value, defaultValue);
+		value = checkParameter(value, defaultValue);
 		
 		return(value);
 	}
@@ -192,7 +189,7 @@ class ModuleStatisticController {
 				days : getParameterDays()]);
 	}
 		
-	private String checkParameter(value, defaultValue) {
+	private def checkParameter(value, defaultValue) {
 		if (value == null) {
 			value = defaultValue;
 		}
