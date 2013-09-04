@@ -19,7 +19,7 @@ class ModuleSet {
 	
     static constraints = {
 		
-		code 		nullable : false , maxSize : 20 , unique : true
+		code 		nullable : false , maxSize : 20
 		description	nullable : false , maxSize : 200
     }
 }
