@@ -2,6 +2,9 @@ package com.k_int.euinside.statistics.services
 
 import java.util.Map;
 
+import com.k_int.euinside.statistics.datamodel.Module;
+import com.k_int.euinside.statistics.datamodel.ModuleSet;
+
 class ReportService {
 	def grailsApplication;
 
@@ -23,15 +26,54 @@ class ReportService {
 			}
 		}
     }
-	
-	def execute(reportType, reportParams) {
+
+	private def getReport(reportType) {
+		return(reportMap.get(reportType.toLowerCase()));
+	}
+		
+	def execute(reportType, reportParameters) {
 		def results = [ ]
 		// Do we have a report of this name
-		def report = reportMap.get(reportType.toLowerCase());
+		def report = getReport(reportType);
 		if (report != null) {
 			// We do so execute it
-			results = report.doReport(reportParams);
+			results = report.doReport(reportParameters);
 		}
 		return(results);
+	}
+	
+	def executeAll(reportType, reportParameters) {
+		def results = [ ];
+		def report = getReport(reportType);
+		if (report != null) {
+			Module.list().each()  {
+				def moduleResult = [ : ];
+				moduleResult.'module' = it.code;
+				moduleResult.'sets' = reportAllSets(report, it, reportParameters);
+				results.add(moduleResult);
+			}
+		}
+		return(results);
+	}
+	
+	def executeAllSets(reportType, reportParameters) {
+		def results = [ ];
+		def report = getReport(reportType);
+		if (report != null) {
+			results = reportAllSets(report, reportParameters.module, reportParameters)
+		}
+		return(results);
+	}
+	
+	private def reportAllSets(report, module, reportParameters) {
+		def results = [ ];
+		if (module != null) {
+			module.sets.each() {
+				reportParameters.'moduleSet' = it;
+				results.add([set : it.code,
+							 statistics : report.doReport(reportParameters)]);
+			}
+		}
+		return(results)
 	}
 }

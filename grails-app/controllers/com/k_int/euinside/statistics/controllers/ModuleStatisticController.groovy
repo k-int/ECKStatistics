@@ -22,7 +22,16 @@ class ModuleStatisticController {
 	}
 
 	def query( ) {
-		def results = ReportService.execute(getParameterQueryType(), buildReportParameters());
+		def results;
+		def reportParameters = buildReportParameters();
+		def queryType = getParameterQueryType();
+		if (params.moduleId == "*") {
+			results = ReportService.executeAll(queryType, reportParameters);
+		} else if (params.set == "*") {
+			results = ReportService.executeAllSets(queryType, reportParameters);
+		} else {
+			results = ReportService.execute(queryType, reportParameters);
+		}
 
 		render results as JSON;
     }
@@ -57,13 +66,12 @@ class ModuleStatisticController {
 			// Do not care if we had an error, it will be dealt with below
 		}
 		
-		
 		String moduleId = params.moduleId;
 		String set = params.set;
 		String responseText = null;
 		def responseCode = 400; // Default to being an error, since only 1 route is successful
 
-		if (moduleId == null) {
+		if ((moduleId == null) || (moduleId == "*")) {
 			responseText = "No module specified";
 		} else if (duration == null) {
 			responseText = "No duration specified";		
@@ -119,35 +127,23 @@ class ModuleStatisticController {
 	}
 	
 	private ModuleSet findModuleSet(module, set, boolean create) {
-		// If we have not been supplied a set or the set is *, then set it to default		
-		if ((set == null) || (set == "*")) {
-			set = "DEFAULT";
-		}
-
-		// Now try and find the set		
-		ModuleSet moduleSet = ModuleSet.findByModuleAndCode(module, set);
-		if ((moduleSet == null) && create) {
-			moduleSet = new ModuleSet();
-			moduleSet.code= set;
-			moduleSet.description = set;
-			moduleSet.module = module;
-			if (!moduleSet.save(flush: true)) {
-				moduleSet = null;
-			}
-		}
-		return(moduleSet);
-	}
-	
-	private ModuleSet findModuleSet() {
 		ModuleSet moduleSet = null;
-		String moduleId = params.moduleId;
-		if (moduleId != null) {
-			String set = params.set;
+		if (module != null) {
+			// If we have not been supplied a set or the set is *, then set it to default		
+			if ((set == null) || (set == "*")) {
+				set = "DEFAULT";
+			}
 	
-			// Ensure we have a legitimate module and set
-			Module module = findModule(moduleId, false);
-			if (module != null) {
-				 moduleSet = findModuleSet(module, set, false);
+			// Now try and find the set		
+			moduleSet = ModuleSet.findByModuleAndCode(module, set);
+			if ((moduleSet == null) && create) {
+				moduleSet = new ModuleSet();
+				moduleSet.code= set;
+				moduleSet.description = set;
+				moduleSet.module = module;
+				if (!moduleSet.save(flush: true)) {
+					moduleSet = null;
+				}
 			}
 		}
 		return(moduleSet);
@@ -183,7 +179,9 @@ class ModuleStatisticController {
 	}
 
 	private def buildReportParameters() {
-		return([moduleSet : findModuleSet(),
+		def module = findModule(params.moduleId, false);
+		return([module : module,
+			    moduleSet : findModuleSet(module, params.set, false),
 			    duration : getParameterDuration(),
 				limit :  getParameterLimit(),
 				offset : getParameterOffset(),
