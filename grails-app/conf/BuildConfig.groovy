@@ -2,10 +2,11 @@ grails.servlet.version = "2.5" // Change depending on target container complianc
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
-grails.project.target.level = 1.6
-grails.project.source.level = 1.6
+grails.project.target.level = 1.7
+grails.project.source.level = 1.7
 grails.server.port.http = 28085
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
+grails.project.dependency.resolver = "maven"
 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -41,18 +42,20 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        runtime ":hibernate:$grailsVersion"
+        runtime ":database-migration:1.3.5"
+        runtime ":hibernate:3.6.10.2"
         runtime ":jquery:1.8.3"
-		runtime ":resources:1.2.RC2"
+        runtime ":jquery-ui:1.8.24"
+		runtime ":resources:1.2"
+		runtime ":twitter-bootstrap:2.3.0"
+		runtime ":webxml:1.4.1"
 
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"
         //runtime ":cached-resources:1.0"
         //runtime ":yui-minify-resources:0.1.5"
 
-        build ":tomcat:$grailsVersion"
-
-        runtime ":database-migration:1.3.5"
+        build ":tomcat:7.0.41"
 
         compile ':cache:1.1.1'
     }
